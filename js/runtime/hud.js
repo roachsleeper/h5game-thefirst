@@ -8,6 +8,12 @@ const TEXT = '#e5ebff';
 const GOLD = '#f2c85f';
 
 const HUD_FRAME_HEIGHT = 58;
+const PAUSE_BUTTON = {
+  x: SCREEN_WIDTH - 58,
+  y: 11,
+  width: 46,
+  height: 36,
+};
 const hudFrame = wx.createImage();
 let hudFrameLoaded = false;
 hudFrame.onload = () => { hudFrameLoaded = true; };
@@ -47,6 +53,34 @@ function drawStatusBar(ctx, player, databus) {
     ctx.fillStyle = i === 1 ? '#ffdfbd' : TEXT;
     ctx.fillText(label, SCREEN_WIDTH * statX[i], statY);
   });
+  ctx.restore();
+
+  drawPauseButton(ctx);
+}
+
+function drawPauseButton(ctx) {
+  const { x, y, width, height } = PAUSE_BUTTON;
+  ctx.save();
+  ctx.fillStyle = 'rgba(5, 10, 24, 0.78)';
+  ctx.beginPath();
+  ctx.roundRect(x, y + 2, width, height, 10);
+  ctx.fill();
+
+  const gradient = ctx.createLinearGradient(x, y, x, y + height);
+  gradient.addColorStop(0, '#526a9b');
+  gradient.addColorStop(1, '#243354');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.roundRect(x, y, width, height, 10);
+  ctx.fill();
+
+  ctx.strokeStyle = '#9eb2e0';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.fillStyle = '#f6e8c4';
+  ctx.fillRect(x + 17, y + 10, 4, 16);
+  ctx.fillRect(x + 25, y + 10, 4, 16);
   ctx.restore();
 }
 
@@ -150,5 +184,12 @@ export default class HUD {
       }
     }
     return null;
+  }
+
+  handlePauseTouch(x, y) {
+    return x >= PAUSE_BUTTON.x
+      && x <= PAUSE_BUTTON.x + PAUSE_BUTTON.width
+      && y >= PAUSE_BUTTON.y
+      && y <= PAUSE_BUTTON.y + PAUSE_BUTTON.height;
   }
 }

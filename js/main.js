@@ -90,9 +90,15 @@ export default class Main {
       }
 
       if (this.pauseScreen.visible) {
+        if (this.hud.handlePauseTouch(x, y)) {
+          this.pauseScreen.visible = false;
+          this.music.resumeGameBgm();
+          return;
+        }
         const result = this.pauseScreen.handleTouch(x, y);
         if (result === 'resume') {
           this.pauseScreen.visible = false;
+          this.music.resumeGameBgm();
         } else if (result === 'restart') {
           this.pauseScreen.visible = false;
           this.startScreen.visible = true;
@@ -103,6 +109,15 @@ export default class Main {
       }
 
       if (!this.isRunning) return;
+
+      if (this.hud.handlePauseTouch(x, y)) {
+        this.pauseScreen.visible = true;
+        this.leftPressed = false;
+        this.rightPressed = false;
+        this.player.cancelCharge();
+        this.music.pauseGameBgm();
+        return;
+      }
 
       const skillResult = this.hud.handleSkillTouch(
         x, y, this.player, this.databus.monsters, this.databus.skillEffects

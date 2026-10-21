@@ -54,6 +54,14 @@ export default class Music {
     this.switchBgm(this.gameBgmAudio);
   }
 
+  pauseGameBgm() {
+    if (this.activeBgm === this.gameBgmAudio) this.gameBgmAudio.pause();
+  }
+
+  resumeGameBgm() {
+    if (this.activeBgm === this.gameBgmAudio) this.gameBgmAudio.play();
+  }
+
   playOneShot(audio) {
     audio.currentTime = 0;
     audio.play();
