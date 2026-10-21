@@ -1,0 +1,86 @@
+:root {
+  color-scheme: dark;
+  --ink: #f6e8c4;
+  --muted: #a99e9d;
+  --wine: #2b1525;
+  --gold: #edbd6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; min-height: 100%; background: #080b18; }
+
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  background:
+    radial-gradient(circle at 50% -20%, rgba(66, 43, 82, .44), transparent 45%),
+    linear-gradient(145deg, #11172c 0%, #080b18 58%, #170e1d 100%);
+}
+
+.site-shell {
+  width: min(1280px, 100vw);
+  padding: 18px 22px 12px;
+}
+
+.brand-mark {
+  height: 30px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--gold);
+  letter-spacing: .16em;
+  user-select: none;
+}
+
+.brand-mark span { font-family: serif; font-size: 20px; font-weight: 700; }
+.brand-mark i { color: #b8a9aa; font-size: 11px; font-style: normal; letter-spacing: .3em; }
+
+.game-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgba(237, 189, 107, .45);
+  border-radius: 14px;
+  background: #0c1632;
+  box-shadow: 0 20px 70px rgba(0, 0, 0, .48), 0 0 0 5px rgba(42, 25, 39, .7);
+  touch-action: none;
+}
+
+#gameCanvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+
+.game-controls { position: absolute; inset: auto 0 0; display: none; justify-content: space-between; align-items: end; padding: 12px; pointer-events: none; }
+.game-controls.visible { display: flex; }
+.move-controls, .skill-controls { display: flex; gap: 9px; pointer-events: auto; }
+
+button { font: inherit; -webkit-tap-highlight-color: transparent; }
+.control-button, .skill-button, .pause-button { border: 1px solid rgba(242, 200, 95, .55); color: #f8eac8; background: rgba(21, 22, 49, .82); cursor: pointer; user-select: none; touch-action: none; }
+.control-button:active, .skill-button:active, .pause-button:active { transform: translateY(2px); filter: brightness(1.25); }
+.control-button { width: 56px; height: 50px; border-radius: 14px; font-size: 22px; }
+.skill-button { width: 70px; height: 53px; display: grid; grid-template-columns: 24px 1fr; gap: 3px; align-items: center; padding: 4px 8px; border-radius: 13px; text-align: left; }
+.skill-button b { font-family: serif; font-size: 20px; color: #f4c96e; }
+.skill-button span { font-size: 11px; writing-mode: vertical-rl; letter-spacing: .14em; }
+.skill-button.shield { border-color: rgba(105, 190, 215, .72); }
+.skill-button.blast { border-color: rgba(226, 110, 71, .75); }
+.pause-button { position: absolute; top: 12px; right: 12px; display: none; width: 36px; height: 32px; border-radius: 9px; font-weight: 700; font-size: 15px; }
+.pause-button.visible { display: block; }
+
+.site-hint { display: flex; justify-content: center; gap: 24px; margin: 11px 0 0; color: var(--muted); font-size: 11px; letter-spacing: .06em; }
+
+@media (max-width: 640px) {
+  body { place-items: start center; overflow: auto; }
+  .site-shell { padding: 8px 8px 10px; }
+  .brand-mark { height: 23px; padding-left: 3px; }
+  .brand-mark span { font-size: 16px; }
+  .brand-mark i { font-size: 9px; }
+  .game-frame { border-radius: 10px; box-shadow: 0 10px 35px rgba(0, 0, 0, .55); }
+  .site-hint { flex-wrap: wrap; gap: 5px 12px; font-size: 9px; }
+}
+
+@media (orientation: portrait) and (max-width: 640px) {
+  .site-hint::before { content: "横屏体验更佳 · "; color: var(--gold); }
+}
