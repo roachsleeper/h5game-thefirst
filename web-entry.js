@@ -147,7 +147,7 @@
     if (['a', 'd', 'arrowleft', 'arrowright'].includes(key)) sendKeyboardTouch(logicalWidth / 2, logicalHeight / 2, 'end');
   });
 
-  import('./game.js').then(() => {
+  import('./game.js?v=pause-v2').then(() => {
     document.body.dataset.gameLoaded = 'true';
   }).catch((error) => {
     console.error('Unable to start the browser edition', error);

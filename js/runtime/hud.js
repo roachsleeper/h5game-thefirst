@@ -9,10 +9,10 @@ const GOLD = '#f2c85f';
 
 const HUD_FRAME_HEIGHT = 58;
 const PAUSE_BUTTON = {
-  x: SCREEN_WIDTH - 58,
-  y: 11,
-  width: 46,
-  height: 36,
+  x: SCREEN_WIDTH - 112,
+  y: 8,
+  width: 100,
+  height: 42,
 };
 const hudFrame = wx.createImage();
 let hudFrameLoaded = false;
@@ -79,8 +79,12 @@ function drawPauseButton(ctx) {
   ctx.stroke();
 
   ctx.fillStyle = '#f6e8c4';
-  ctx.fillRect(x + 17, y + 10, 4, 16);
-  ctx.fillRect(x + 25, y + 10, 4, 16);
+  ctx.fillRect(x + 12, y + 12, 5, 18);
+  ctx.fillRect(x + 22, y + 12, 5, 18);
+  ctx.font = 'bold 12px Arial';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('PAUSE', x + 36, y + 21);
   ctx.restore();
 }
 
