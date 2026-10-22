@@ -1,3 +1,5 @@
+import { WEB_IMAGE_ASSETS } from './web-assets.js';
+
 /* Browser adapter: the actual game is still js/main.js and its original modules. */
 (function () {
   'use strict';
@@ -23,6 +25,45 @@
     const kind = match[1].toLowerCase();
     const relativeName = match[2];
     return assetRoots[kind].map((root) => new URL(root + relativeName, assetBase).href);
+  }
+
+  const loader = document.createElement('div');
+  loader.style.cssText = 'position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#080b18;color:#f6e8c4;font:16px Microsoft YaHei,system-ui,sans-serif;transition:opacity .25s ease;';
+  loader.innerHTML = '<div style="width:min(82vw,420px);text-align:center"><div style="font-size:22px;font-weight:700;margin-bottom:18px">正在加载游戏素材</div><div style="height:10px;border-radius:99px;background:#202a45;overflow:hidden"><div data-progress style="width:0%;height:100%;background:#edbd6b;transition:width .15s ease"></div></div><div data-label style="margin-top:12px;color:#a99e9d;font-size:13px">0%</div></div>';
+  document.body.appendChild(loader);
+  loader.innerHTML = '<style>.asset-loader-card{width:min(82vw,420px);padding:30px 28px;border:1px solid rgba(237,189,107,.45);border-radius:20px;background:linear-gradient(145deg,#202b4a,#11182e);box-shadow:0 18px 60px rgba(0,0,0,.5);text-align:center}.asset-loader-mark{width:58px;height:58px;margin:0 auto 18px;border-radius:50%;background:radial-gradient(circle,#ffe9a8 0 12%,#edbd6b 13% 28%,rgba(237,189,107,.18) 29% 58%,transparent 60%);animation:assetPulse 1.2s ease-in-out infinite}.asset-loader-title{font-size:21px;font-weight:700}.asset-loader-sub{margin:8px 0 20px;color:#a99e9d;font-size:13px}.asset-loader-dots{display:inline-flex;gap:5px;margin-left:4px}.asset-loader-dots i{width:5px;height:5px;border-radius:50%;background:#edbd6b;animation:assetDot 1s ease-in-out infinite}.asset-loader-dots i:nth-child(2){animation-delay:.15s}.asset-loader-dots i:nth-child(3){animation-delay:.3s}@keyframes assetPulse{50%{transform:scale(1.12);filter:brightness(1.3)}}@keyframes assetDot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}</style><div class="asset-loader-card"><div class="asset-loader-mark"></div><div class="asset-loader-title">正在加载游戏素材<span class="asset-loader-dots"><i></i><i></i><i></i></span></div><div class="asset-loader-sub">场景、角色、技能准备中</div><div style="height:10px;border-radius:99px;background:#202a45;overflow:hidden"><div data-progress style="width:0%;height:100%;background:linear-gradient(90deg,#b87845,#edbd6b);transition:width .15s ease"></div></div><div data-label style="margin-top:12px;color:#a99e9d;font-size:13px">0%</div></div>';
+  const progressBar = loader.querySelector('[data-progress]');
+  const progressLabel = loader.querySelector('[data-label]');
+
+  function preloadImage(src) {
+    const candidates = assetCandidates(src);
+    return new Promise((resolve) => {
+      const image = new Image();
+      let index = 0;
+      const next = () => {
+        if (index >= candidates.length) return resolve(false);
+        image.src = candidates[index++];
+      };
+      image.onload = () => resolve(true);
+      image.onerror = next;
+      next();
+    });
+  }
+
+  function preloadGameImages() {
+    let loaded = 0;
+    const total = WEB_IMAGE_ASSETS.length;
+    return Promise.all(WEB_IMAGE_ASSETS.map((src) => preloadImage(src).then(() => {
+      loaded += 1;
+      const percent = Math.round((loaded / total) * 100);
+      progressBar.style.width = `${percent}%`;
+      progressLabel.textContent = `${percent}% (${loaded}/${total})`;
+    })));
+  }
+
+  function hideLoader() {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.remove(), 300);
   }
 
   function createAssetImage() {
@@ -147,8 +188,9 @@
     if (['a', 'd', 'arrowleft', 'arrowright'].includes(key)) sendKeyboardTouch(logicalWidth / 2, logicalHeight / 2, 'end');
   });
 
-  import('./game.js?v=comic-intro-v1').then(() => {
+  preloadGameImages().then(() => import('./game.js?v=preload-v1')).then(() => {
     document.body.dataset.gameLoaded = 'true';
+    hideLoader();
   }).catch((error) => {
     console.error('Unable to start the browser edition', error);
     showBootError(error && error.message ? error.message : '请使用项目目录启动静态服务器后重试。');
