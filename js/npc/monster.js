@@ -77,6 +77,13 @@ const armoredSlowFrames = [];
 const armoredSlowLoaded = [];
 const flameFastFrames = [];
 const flameFastLoaded = [];
+
+function chooseLoadedFrame(frames, loaded, requested, previous) {
+  if (loaded[requested] && frames[requested] && frames[requested].width > 0) return requested;
+  if (loaded[previous] && frames[previous] && frames[previous].width > 0) return previous;
+  const firstLoaded = loaded.findIndex((isLoaded, index) => isLoaded && frames[index] && frames[index].width > 0);
+  return firstLoaded >= 0 ? firstLoaded : -1;
+}
 const walkerFrames = [];
 const walkerLoaded = [];
 
@@ -171,6 +178,9 @@ export default class Monster {
     this.animationOffset = Math.floor(Math.random() * animationInterval);
     this.animationTimer = 0;
     this.animationFrame = 0;
+    this.lastWalkerFrame = 0;
+    this.lastArmoredSlowFrame = 0;
+    this.lastFlameFastFrame = 0;
     this.jumpOffset = 0;
     this.isWalkerCyclePause = false;
     this.isMoving = false;
@@ -270,8 +280,10 @@ export default class Monster {
   }
 
   renderWalker(ctx) {
-    const frameIndex = this.animationFrame || 0;
-    const img = walkerFrames[frameIndex];
+    const requestedFrame = this.animationFrame || 0;
+    const frameIndex = chooseLoadedFrame(walkerFrames, walkerLoaded, requestedFrame, this.lastWalkerFrame);
+    if (frameIndex >= 0) this.lastWalkerFrame = frameIndex;
+    const img = frameIndex >= 0 ? walkerFrames[frameIndex] : null;
     const x = Math.round(this.x);
     const y = Math.round(this.y);
     const hpPercent = Math.max(0, Math.min(1, this.hp / this.maxHp));
@@ -289,7 +301,7 @@ export default class Monster {
     ctx.fillStyle = hpPercent > 0.35 ? '#56c96b' : '#dd5547';
     ctx.fillRect(x + 1, y - 9, Math.max(1, (this.width - 2) * hpPercent), 4);
 
-    if (img && walkerLoaded[frameIndex] && img.width) {
+    if (img && frameIndex >= 0 && walkerLoaded[frameIndex] && img.width) {
       ctx.save();
       ctx.translate(this.flipX ? x + this.width : x, drawY);
       ctx.scale(this.flipX ? -1 : 1, 1);
@@ -311,8 +323,10 @@ export default class Monster {
   }
 
   renderArmoredSlow(ctx) {
-    const frameIndex = this.animationFrame || 0;
-    const img = armoredSlowFrames[frameIndex];
+    const requestedFrame = this.animationFrame || 0;
+    const frameIndex = chooseLoadedFrame(armoredSlowFrames, armoredSlowLoaded, requestedFrame, this.lastArmoredSlowFrame);
+    if (frameIndex >= 0) this.lastArmoredSlowFrame = frameIndex;
+    const img = frameIndex >= 0 ? armoredSlowFrames[frameIndex] : null;
     const x = Math.round(this.x);
     const y = Math.round(this.y);
     const cx = x + this.width / 2;
@@ -330,7 +344,7 @@ export default class Monster {
     ctx.fillStyle = hpPercent > 0.35 ? '#56c96b' : '#dd5547';
     ctx.fillRect(x + 1, y - 9, Math.max(1, (this.width - 2) * hpPercent), 4);
 
-    if (img && armoredSlowLoaded[frameIndex] && img.width) {
+    if (img && frameIndex >= 0 && armoredSlowLoaded[frameIndex] && img.width) {
       ctx.globalAlpha = this.hitFlashTimer > 0 ? 0.72 : 1;
       ctx.save();
       ctx.translate(this.flipX ? x + this.width : x, drawY);
@@ -353,8 +367,10 @@ export default class Monster {
   }
 
   renderFlameFast(ctx) {
-    const frameIndex = this.animationFrame || 0;
-    const img = flameFastFrames[frameIndex];
+    const requestedFrame = this.animationFrame || 0;
+    const frameIndex = chooseLoadedFrame(flameFastFrames, flameFastLoaded, requestedFrame, this.lastFlameFastFrame);
+    if (frameIndex >= 0) this.lastFlameFastFrame = frameIndex;
+    const img = frameIndex >= 0 ? flameFastFrames[frameIndex] : null;
     const crop = FLAME_FAST_FRAME_CROPS[frameIndex];
     const x = Math.round(this.x);
     const baseY = Math.round(this.y);
@@ -370,7 +386,7 @@ export default class Monster {
     ctx.fillStyle = hpPercent > 0.35 ? '#56c96b' : '#dd5547';
     ctx.fillRect(x + 1, y - 9, Math.max(1, (this.width - 2) * hpPercent), 4);
 
-    if (img && flameFastLoaded[frameIndex] && img.width) {
+    if (img && frameIndex >= 0 && flameFastLoaded[frameIndex] && img.width) {
       ctx.globalAlpha = this.hitFlashTimer > 0 ? 0.72 : 1;
       ctx.save();
       ctx.translate(this.flipX ? x + this.width : x, y);

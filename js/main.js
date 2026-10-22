@@ -3,9 +3,10 @@ import Player from './player/player.js';
 import Monster from './npc/monster.js';
 import BrowseScreen from './browse/browseScreen.js';
 import StartScreen from './runtime/startscreen.js';
-import PauseScreen from './runtime/pausescreen.js?v=pause-v2';
+import PauseScreen from './runtime/pausescreen.js';
 import GameOverScreen from './runtime/gameoverscreen.js';
-import HUD from './runtime/hud.js?v=pause-v2';
+import HUD from './runtime/hud.js';
+import ComicIntro from './runtime/comicintro.js';
 import DataBus from './databus.js';
 import Music from './runtime/music.js';
 import { MASKS } from './runtime/mask.js';
@@ -24,6 +25,10 @@ export default class Main {
     this.player = new Player();
     this.browseScreen = new BrowseScreen();
     this.startScreen = new StartScreen();
+    this.startScreen.visible = false;
+    this.comicIntro = new ComicIntro(() => {
+      this.startScreen.visible = true;
+    });
     this.pauseScreen = new PauseScreen();
     this.gameOverScreen = new GameOverScreen();
     this.hud = new HUD();
@@ -54,6 +59,11 @@ export default class Main {
   initTouchEvents() {
     wx.onTouchStart((e) => {
       const { clientX: x, clientY: y } = e.touches[0];
+
+      if (this.comicIntro.visible) {
+        this.comicIntro.handleTouch(x, y);
+        return;
+      }
 
       if (this.browseScreen.visible) {
         const result = this.browseScreen.handleTouchStart(x, y);
@@ -421,7 +431,10 @@ export default class Main {
   }
 
   loop() {
-    if (this.browseScreen.visible) {
+    if (this.comicIntro.visible) {
+      this.comicIntro.update();
+      this.comicIntro.render(this.ctx);
+    } else if (this.browseScreen.visible) {
       this.browseScreen.update();
       this.browseScreen.render(this.ctx);
     } else if (this.startScreen.visible) {
